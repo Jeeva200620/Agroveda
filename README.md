@@ -1,3 +1,13 @@
+---
+title: Agroveda
+emoji: 🌿
+colorFrom: green
+colorTo: green
+sdk: docker
+app_port: 7860
+pinned: false
+---
+
 # 🌿 AgroVeda - AI-Powered Agricultural Expert System
 
 AgroVeda is a premium, high-performance agricultural expert web application designed to empower farmers and agronomists with real-time AI crop consultation, clinical-grade plant disease detection, localized agricultural weather analytics, and cloud database persistence.
