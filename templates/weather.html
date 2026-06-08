@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather Forecast | AgroVeda</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .weather-container {
+            padding: 6rem 2rem 2rem 2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+            color: white;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .main-card {
+            background: linear-gradient(135deg, #00b894, #2ecc71);
+            border-radius: 20px;
+            padding: 3rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 10px 30px rgba(46, 204, 113, 0.2);
+        }
+
+        .temp-display h1 {
+            font-size: 5rem;
+            font-weight: 700;
+        }
+
+        .temp-display p {
+            font-size: 1.5rem;
+            opacity: 0.9;
+        }
+
+        .weather-icon i {
+            font-size: 8rem;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .forecast-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+        }
+
+        .forecast-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 1.5rem;
+            text-align: center;
+        }
+
+        .forecast-card .day {
+            color: #95a5a6;
+            margin-bottom: 0.5rem;
+        }
+
+        .forecast-card i {
+            font-size: 2rem;
+            margin: 1rem 0;
+            color: #e67e22;
+        }
+
+        .rain i {
+            color: #3498db;
+        }
+
+        .cloud i {
+            color: #95a5a6;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="logo">
+                <i class="fa-solid fa-seedling"></i>
+                <span>AgroVeda</span>
+            </div>
+            <nav>
+                <a href="/"><i class="fa-solid fa-message"></i> Chat</a>
+                <a href="/market"><i class="fa-solid fa-chart-line"></i> Market Prices</a>
+                <a href="/weather" class="active"><i class="fa-solid fa-cloud-sun"></i> Weather</a>
+                <a href="/settings"><i class="fa-solid fa-gear"></i> Settings</a>
+            </nav>
+            <div class="user-profile">
+                <div class="avatar">U</div>
+                <div class="info">
+                    <span class="name">User</span>
+                    <span class="role">Farmer</span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="chat-interface">
+            <header>
+                <h1>Weather Forecast</h1>
+                <p>Simulated weather data for planning your farming activities.</p>
+            </header>
+
+            <div class="weather-container">
+                <div class="main-card">
+                    <div class="temp-display">
+                        <h1>28°C</h1>
+                        <p>Partly Cloudy</p>
+                        <p style="font-size: 1rem; margin-top: 10px;"><i class="fa-solid fa-location-dot"></i> Farming
+                            Region, India</p>
+                    </div>
+                    <div class="weather-icon">
+                        <i class="fa-solid fa-cloud-sun"></i>
+                    </div>
+                </div>
+
+                <h3 style="margin-top: 1rem;">5-Day Forecast</h3>
+                <div class="forecast-grid">
+                    <div class="forecast-card rain">
+                        <div class="day">Tomorrow</div>
+                        <i class="fa-solid fa-cloud-rain"></i>
+                        <div class="temp">24°C</div>
+                        <small>Rain Warning</small>
+                    </div>
+                    <div class="forecast-card cloud">
+                        <div class="day">Wednesday</div>
+                        <i class="fa-solid fa-cloud"></i>
+                        <div class="temp">26°C</div>
+                    </div>
+                    <div class="forecast-card">
+                        <div class="day">Thursday</div>
+                        <i class="fa-solid fa-sun"></i>
+                        <div class="temp">31°C</div>
+                    </div>
+                    <div class="forecast-card">
+                        <div class="day">Friday</div>
+                        <i class="fa-solid fa-sun"></i>
+                        <div class="temp">32°C</div>
+                    </div>
+                    <div class="forecast-card rain">
+                        <div class="day">Saturday</div>
+                        <i class="fa-solid fa-cloud-bolt"></i>
+                        <div class="temp">25°C</div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</body>
+
+</html>

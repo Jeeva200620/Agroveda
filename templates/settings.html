@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings | AgroVeda</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .settings-container {
+            padding: 6rem 2rem 2rem 2rem;
+            color: #ecf0f1;
+            overflow-y: auto;
+            flex: 1;
+            max-width: 800px;
+        }
+
+        .settings-section {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .settings-section h3 {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 0.5rem;
+            margin-bottom: 1rem;
+            color: #2ecc71;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #bdc3c7;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 0.8rem;
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            color: white;
+            font-family: inherit;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #2ecc71;
+        }
+
+        .save-btn {
+            background: #2ecc71;
+            color: #0f1110;
+            padding: 0.8rem 2rem;
+            font-weight: 600;
+            width: auto;
+            border-radius: 8px;
+        }
+
+        .save-btn:hover {
+            background: #27ae60;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="logo">
+                <i class="fa-solid fa-seedling"></i>
+                <span>AgroVeda</span>
+            </div>
+            <nav>
+                <a href="/"><i class="fa-solid fa-message"></i> Chat</a>
+                <a href="/market"><i class="fa-solid fa-chart-line"></i> Market Prices</a>
+                <a href="/weather"><i class="fa-solid fa-cloud-sun"></i> Weather</a>
+                <a href="/settings" class="active"><i class="fa-solid fa-gear"></i> Settings</a>
+            </nav>
+            <div class="user-profile">
+                <div class="avatar">U</div>
+                <div class="info">
+                    <span class="name">User</span>
+                    <span class="role">Farmer</span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="chat-interface">
+            <header>
+                <h1>Settings</h1>
+                <p>Manage your profile and application preferences.</p>
+            </header>
+
+            <div class="settings-container">
+                <div class="settings-section">
+                    <h3><i class="fa-solid fa-user"></i> Profile Information</h3>
+                    <div class="form-group">
+                        <label>Name</label>
+                        <input type="text" value="User">
+                    </div>
+                    <div class="form-group">
+                        <label>Role</label>
+                        <select>
+                            <option value="farmer">Farmer</option>
+                            <option value="researcher">Researcher</option>
+                            <option value="hobbyist">Gardener</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Region / Land Location</label>
+                        <input type="text" value="Tamil Nadu, India">
+                    </div>
+                </div>
+
+                <div class="settings-section">
+                    <h3><i class="fa-solid fa-sliders"></i> App Preferences</h3>
+                    <div class="form-group">
+                        <label>Language</label>
+                        <select>
+                            <option value="en">English</option>
+                            <option value="ta">Tamil</option>
+                            <option value="hi">Hindi</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Soil Type (Default)</label>
+                        <select>
+                            <option value="red">Red Soil</option>
+                            <option value="black">Black Soil</option>
+                            <option value="alluvial">Alluvial Soil</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="display: flex; align-items: center; gap: 10px;">
+                        <input type="checkbox" checked style="width: auto;">
+                        <label style="margin: 0;">Enable Push Notifications for Weather Alerts</label>
+                    </div>
+                </div>
+
+                <button class="save-btn">Save Changes</button>
+            </div>
+        </main>
+    </div>
+</body>
+
+</html>

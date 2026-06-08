@@ -1,0 +1,127 @@
+/* Tailwind takes care of most utility classes */
+/* Custom Scrollbars */
+.custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #c1c8c2;
+    border-radius: 10px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #a1a8a2;
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pulse-ring {
+    0% { transform: scale(0.9); opacity: 1; }
+    100% { transform: scale(2); opacity: 0; }
+}
+
+/* Content View Setup */
+.content-view {
+    display: none;
+    z-index: 10;
+}
+.content-view.active {
+    display: flex;
+    animation: fadeIn 0.4s ease forwards;
+    z-index: 20;
+}
+
+/* Base button resets for forms */
+button {
+    outline: none;
+}
+
+/* Active Sidebar Navigation States */
+.nav-btn {
+    color: #414844; /* text-on-surface-variant */
+    background: transparent;
+    opacity: 0.8;
+}
+.nav-btn:hover {
+    background: #dbe3db; /* surface-variant */
+    opacity: 1;
+}
+.nav-btn.active {
+    color: #3b6e4c; /* primary */
+    border-right: 4px solid #3b6e4c;
+    background: rgba(255, 255, 255, 0.7);
+    font-weight: 700;
+    opacity: 1;
+}
+
+/* Weather Hub styling (overriding some inline strings returned by backend) */
+.report-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+    margin-top: 1.5rem;
+}
+.report-item {
+    background: rgba(255, 255, 255, 0.4);
+    padding: 1.5rem;
+    border-radius: 20px;
+    text-align: center;
+    border: 1px solid rgba(0, 0, 0, 0.03);
+}
+.report-item i {
+    font-size: 2rem;
+    color: #3b6e4c;
+    margin-bottom: 0.8rem;
+    display: block;
+}
+.report-item .val {
+    font-size: 1.4rem;
+    font-weight: 600;
+    display: block;
+    margin-bottom: 0.2rem;
+    color: #181c1b;
+}
+.report-item .lab {
+    font-size: 0.8rem;
+    color: #414844;
+}
+
+/* AI Message Content Formatting */
+.message-formatted h4 {
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    color: inherit;
+    font-size: 1.1rem;
+    border-bottom: 1px solid rgba(0,0,0,0.1);
+    padding-bottom: 0.3rem;
+}
+.message-formatted p {
+    margin-bottom: 0.8rem;
+    line-height: 1.6;
+}
+.message-formatted ul {
+    margin-left: 1.5rem;
+    list-style-type: disc;
+    margin-bottom: 0.8rem;
+}
+.message-formatted li {
+    margin-bottom: 0.4rem;
+}
+.message-formatted strong {
+    font-weight: 700;
+}
+
+/* Auth Screen Custom Styles */
+#auth-overlay input:focus {
+    background-color: rgba(255, 255, 255, 0.9);
+    box-shadow: 0 0 0 2px rgba(59, 110, 76, 0.2);
+}
+.animate-fade-in {
+    animation: fadeIn 0.4s ease forwards;
+}

@@ -1,0 +1,7 @@
+flask
+Pillow
+tensorflow>=2.0.0
+groq
+python-dotenv
+requests
+gunicorn

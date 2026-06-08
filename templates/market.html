@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Market Prices | AgroVeda</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .market-grid {
+            padding: 6rem 2rem 2rem 2rem;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.5rem;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .price-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 1.5rem;
+            backdrop-filter: blur(10px);
+            transition: 0.3s;
+        }
+
+        .price-card:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.08);
+            border-color: #2ecc71;
+        }
+
+        .crop-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .crop-name {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #fff;
+        }
+
+        .trend-up {
+            color: #e74c3c;
+        }
+
+        .trend-down {
+            color: #2ecc71;
+        }
+
+        .price-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: #2ecc71;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="logo">
+                <i class="fa-solid fa-seedling"></i>
+                <span>AgroVeda</span>
+            </div>
+            <nav>
+                <a href="/"><i class="fa-solid fa-message"></i> Chat</a>
+                <a href="/market" class="active"><i class="fa-solid fa-chart-line"></i> Market Prices</a>
+                <a href="/weather"><i class="fa-solid fa-cloud-sun"></i> Weather</a>
+                <a href="/settings"><i class="fa-solid fa-gear"></i> Settings</a>
+            </nav>
+            <div class="user-profile">
+                <div class="avatar">U</div>
+                <div class="info">
+                    <span class="name">User</span>
+                    <span class="role">Farmer</span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="chat-interface">
+            <header>
+                <div class="header-content">
+                    <div>
+                        <h1>Current Market Prices</h1>
+                        <p>Live agricultural commodity prices in your region.</p>
+                    </div>
+                    <button onclick="refreshPrices()" class="refresh-btn">
+                        <i class="fa-solid fa-rotate-right"></i> Refresh
+                    </button>
+                </div>
+            </header>
+
+            <div class="market-grid" id="market-grid">
+                {% for item in prices %}
+                <div class="price-card">
+                    <div class="crop-header">
+                        <span class="crop-name">{{ item.name }}</span>
+                        {% if item.trend == 'up' %}
+                        <span class="trend-up"><i class="fa-solid fa-arrow-trend-up"></i> High Demand</span>
+                        {% elif item.trend == 'down' %}
+                        <span class="trend-down"><i class="fa-solid fa-arrow-trend-down"></i> Low Demand</span>
+                        {% else %}
+                        <span style="color: #f1c40f;"><i class="fa-solid fa-minus"></i> Stable</span>
+                        {% endif %}
+                    </div>
+                    <div class="price-value">₹{{ item.price }}/{{ item.unit }}</div>
+                    <p style="color: grey; font-size: 0.9rem;">Live Update • Just now</p>
+                </div>
+                {% endfor %}
+            </div>
+        </main>
+    </div>
+
+    <script>
+        async function refreshPrices() {
+            const btn = document.querySelector('.refresh-btn');
+            const icon = btn.querySelector('i');
+
+            // Add spin animation
+            icon.classList.add('fa-spin');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-rotate-right fa-spin"></i> Updating...';
+
+            try {
+                const response = await fetch('/api/market/refresh');
+                if (response.ok) {
+                    // Reload to show new Jinja render or update DOM (simpler to reload for now or we can implement DOM update)
+                    // Let's reload to keep it simple and consistent with server-side rendering
+                    window.location.reload();
+                } else {
+                    alert('Failed to update prices');
+                }
+            } catch (err) {
+                console.error(err);
+                alert('Connection error');
+            } finally {
+                icon.classList.remove('fa-spin');
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fa-solid fa-rotate-right"></i> Refresh';
+            }
+        }
+    </script>
+</body>
+
+</html>
