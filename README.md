@@ -131,17 +131,24 @@ Open `http://127.0.0.1:5000` in your web browser.
 
 ---
 
-## ☁️ Deployment on Railway
+## ☁️ Deployment on Hugging Face Spaces
 
-The repository is configured out-of-the-box for production deployment on **Railway**:
+The repository is configured for free production deployment on **Hugging Face Spaces** using the **Docker SDK**:
 
-1. **Gunicorn Server**: Already added to the dependency manifest.
-2. **Launch Procfile**: Includes a [Procfile](file:///c:/Users/Jeeva/agri_chat_bot/Procfile) specifying `web: gunicorn app:app`.
-3. **Deployment**:
-   - Go to your **[Railway Dashboard](https://railway.app/)**.
-   - Create a new service and select **Deploy from GitHub repo**.
-   - Select your repository.
-   - Go to the **Variables** tab and set the environment variables:
+1. **Docker Containerization**: Includes a [Dockerfile](file:///c:/Users/Jeeva/agri_chat_bot/Dockerfile) configuring the python environment, installing dependencies, and exposing port `7860`.
+2. **Git LFS Enabled**: Large files like the TensorFlow model (`.h5`) and image assets are configured to be stored via Git Large File Storage (LFS).
+3. **Deployment Steps**:
+   - Create a **New Space** on Hugging Face.
+   - Choose **Docker** as the Space SDK and **Blank** as the template.
+   - Add your Hugging Face Space repository as a Git remote:
+     ```bash
+     git remote add hf https://huggingface.co/spaces/<YOUR_HF_USERNAME>/<SPACE_NAME>
+     ```
+   - Push your code:
+     ```bash
+     git push -f hf main
+     ```
+   - Go to your Space **Settings**, scroll to **Variables and secrets**, and add your secrets:
      * `GROQ_API_KEY`
      * `WEATHER_API_KEY`
-   - Railway will build and host the application automatically.
+   - Hugging Face will build your Docker image and run the application automatically.
