@@ -1362,5 +1362,60 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Focus input on load
-    input.focus();
+    if (input) input.focus();
+
+    // --- Responsive Sidebar Toggling ---
+    const menuToggleBtn = document.getElementById('menu-toggle-btn');
+    const sidebarCloseBtn = document.getElementById('sidebar-close-btn');
+    const sidebar = document.querySelector('aside');
+    const sidebarBackdrop = document.getElementById('sidebar-backdrop');
+
+    function openSidebar() {
+        if (sidebar) {
+            sidebar.classList.remove('-translate-x-full');
+            sidebar.classList.add('translate-x-0');
+        }
+        if (sidebarBackdrop) {
+            sidebarBackdrop.classList.remove('hidden');
+            // Force reflow
+            sidebarBackdrop.offsetHeight;
+            sidebarBackdrop.classList.add('opacity-100');
+        }
+    }
+
+    function closeSidebar() {
+        if (sidebar) {
+            sidebar.classList.remove('translate-x-0');
+            sidebar.classList.add('-translate-x-full');
+        }
+        if (sidebarBackdrop) {
+            sidebarBackdrop.classList.remove('opacity-100');
+            sidebarBackdrop.classList.add('opacity-0');
+            // Wait for transition to complete before hiding
+            setTimeout(() => {
+                if (sidebarBackdrop.classList.contains('opacity-0')) {
+                    sidebarBackdrop.classList.add('hidden');
+                }
+            }, 300);
+        }
+    }
+
+    if (menuToggleBtn) {
+        menuToggleBtn.addEventListener('click', openSidebar);
+    }
+    if (sidebarCloseBtn) {
+        sidebarCloseBtn.addEventListener('click', closeSidebar);
+    }
+    if (sidebarBackdrop) {
+        sidebarBackdrop.addEventListener('click', closeSidebar);
+    }
+
+    // Also close sidebar on navigation item clicks (on mobile devices)
+    document.querySelectorAll('aside nav button').forEach(btn => {
+        btn.addEventListener('click', () => {
+            if (window.innerWidth < 1024) { // lg breakpoint is 1024px
+                closeSidebar();
+            }
+        });
+    });
 });

@@ -132,11 +132,20 @@
         </div>
     </div>
 
+    <!-- Sidebar Backdrop Overlay (mobile only) -->
+    <div id="sidebar-backdrop" class="fixed inset-0 bg-black/40 backdrop-blur-sm z-[45] hidden lg:hidden transition-opacity duration-300 opacity-0"></div>
+
     <!-- Sidebar -->
-    <aside class="h-screen w-72 flex-col fixed left-0 top-0 bg-[#e2ebe3] dark:bg-[#0a120e] flex py-8 px-6 space-y-8 z-50 shadow-md">
-        <div class="text-2xl font-black text-primary dark:text-[#c3e2c9] flex items-center gap-3 font-headline">
-            <img src="{{ url_for('static', filename='logo.png') }}" class="w-8 h-8 object-contain rounded-lg shadow-sm" alt="AgroVeda Logo">
-            <span>AgroVeda</span>
+    <aside class="h-screen w-72 flex-col fixed left-0 top-0 bg-[#e2ebe3] dark:bg-[#0a120e] py-8 px-6 space-y-8 z-50 shadow-md transition-transform duration-300 transform -translate-x-full lg:translate-x-0 flex">
+        <div class="text-2xl font-black text-primary dark:text-[#c3e2c9] flex items-center justify-between font-headline">
+            <div class="flex items-center gap-3">
+                <img src="{{ url_for('static', filename='logo.png') }}" class="w-8 h-8 object-contain rounded-lg shadow-sm" alt="AgroVeda Logo">
+                <span>AgroVeda</span>
+            </div>
+            <!-- Close Button (mobile only) -->
+            <button id="sidebar-close-btn" class="lg:hidden p-1.5 hover:bg-surface-container-high rounded-full transition-colors active:scale-95 text-primary dark:text-[#c3e2c9] flex items-center justify-center" aria-label="Close Sidebar">
+                <span class="material-symbols-outlined text-xl">close</span>
+            </button>
         </div>
         
         <div class="flex items-center gap-4 bg-white/40 dark:bg-white/5 p-4 rounded-lg">
@@ -176,20 +185,26 @@
         </div>
     </aside>
 
-    <main class="ml-72 flex flex-col h-screen">
+    <main class="ml-0 lg:ml-72 flex flex-col h-screen">
         <!-- Unified Header -->
-        <header class="bg-[#ecf3ee] dark:bg-[#152e1f] sticky top-0 z-40 flex justify-between items-center w-full px-8 py-4 border-b border-surface-container-highest shrink-0">
-            <div class="flex flex-col">
-                <h1 class="text-xl md:text-2xl font-black text-primary dark:text-[#ecf3ee] font-headline tracking-tight">Expert Analysis</h1>
-                <p class="text-xs font-medium text-on-surface-variant/70">Powered by Llama-3 & AgroVision AI</p>
+        <header class="bg-[#ecf3ee] dark:bg-[#152e1f] sticky top-0 z-40 flex justify-between items-center w-full px-4 md:px-8 py-4 border-b border-surface-container-highest shrink-0">
+            <div class="flex items-center gap-4">
+                <!-- Hamburger Menu Button (mobile only) -->
+                <button id="menu-toggle-btn" class="lg:hidden p-2 -ml-2 hover:bg-surface-container-high rounded-full transition-colors active:scale-95 text-primary dark:text-[#c3e2c9] flex items-center justify-center" aria-label="Open Sidebar">
+                    <span class="material-symbols-outlined text-2xl">menu</span>
+                </button>
+                <div class="flex flex-col">
+                    <h1 class="text-lg md:text-2xl font-black text-primary dark:text-[#ecf3ee] font-headline tracking-tight">Expert Analysis</h1>
+                    <p class="text-[10px] md:text-xs font-medium text-on-surface-variant/70">Powered by Llama-3 & AgroVision AI</p>
+                </div>
             </div>
             <div class="flex items-center gap-6">
                 <!-- Weather Widget -->
-                <div id="weather-widget" style="display: none;" class="flex items-center gap-3 bg-surface-container-high px-4 py-2 rounded-full cursor-pointer hover:bg-surface-container-highest/80 transition-all duration-200 active:scale-95">
-                    <span id="weather-icon" class="material-symbols-outlined text-primary">cloud</span>
+                <div id="weather-widget" style="display: none;" class="flex items-center gap-2 md:gap-3 bg-surface-container-high px-3 py-1.5 md:px-4 md:py-2 rounded-full cursor-pointer hover:bg-surface-container-highest/80 transition-all duration-200 active:scale-95">
+                    <span id="weather-icon" class="material-symbols-outlined text-primary text-lg md:text-xl">cloud</span>
                     <div class="flex flex-col">
-                        <span id="weather-temp" class="text-sm font-bold leading-none">--°C</span>
-                        <span id="weather-condition" class="text-[10px] font-medium opacity-60 uppercase tracking-tighter">Loading...</span>
+                        <span id="weather-temp" class="text-xs md:text-sm font-bold leading-none">--°C</span>
+                        <span id="weather-condition" class="text-[9px] md:text-[10px] font-medium opacity-60 uppercase tracking-tighter hidden sm:inline">Loading...</span>
                         <small id="weather-city" class="hidden">City</small>
                     </div>
                 </div>
@@ -262,14 +277,14 @@
             <!-- CHAT VIEW -->
             <div id="chat-view" class="content-view w-full h-full flex flex-col absolute inset-0 bg-surface">
                 <!-- Chat History / Timeline -->
-                <section class="flex-grow p-8 overflow-y-auto custom-scrollbar">
+                <section class="flex-grow p-4 md:p-8 overflow-y-auto custom-scrollbar">
                     <div class="max-w-4xl mx-auto w-full flex flex-col space-y-8" id="chat-history">
                         <!-- Filled by JS -->
                     </div>
                 </section>
 
                 <!-- Input area -->
-                <footer class="p-6 bg-surface border-t border-surface-container shrink-0">
+                <footer class="p-4 md:p-6 bg-surface border-t border-surface-container shrink-0 font-body">
                     <div class="max-w-4xl mx-auto">
                         <!-- Image Preview Box -->
                         <div id="image-preview-container" class="mb-4 bg-surface-container-highest p-4 rounded-xl items-start gap-4 relative shadow-sm" style="display: none; max-width: 200px;">
@@ -296,7 +311,7 @@
             </div>
 
             <!-- WEATHER VIEW -->
-            <div id="weather-view" class="content-view w-full h-full absolute inset-0 bg-surface p-8 overflow-y-auto custom-scrollbar">
+            <div id="weather-view" class="content-view w-full h-full absolute inset-0 bg-surface p-4 md:p-8 overflow-y-auto custom-scrollbar">
                 <div class="max-w-5xl mx-auto">
                    <div class="flex flex-wrap items-center justify-between gap-4 mb-8">
                         <div class="flex items-center gap-4 bg-surface-container px-4 py-2 rounded-full shadow-sm">
@@ -362,7 +377,7 @@
             </div>
 
             <!-- SETTINGS VIEW -->
-            <div id="settings-view" class="content-view w-full h-full absolute inset-0 bg-surface p-8 overflow-y-auto custom-scrollbar">
+            <div id="settings-view" class="content-view w-full h-full absolute inset-0 bg-surface p-4 md:p-8 overflow-y-auto custom-scrollbar">
                 <div class="max-w-4xl mx-auto space-y-10 pt-4">
                     <h1 class="text-3xl font-black text-primary font-headline tracking-tight mb-4">Settings</h1>
 
