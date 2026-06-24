@@ -5,7 +5,7 @@ colorFrom: green
 colorTo: green
 sdk: docker
 app_port: 7860
-pinned: false
+pinned: true
 ---
 
 # 🌿 AgroVeda - AI-Powered Agricultural Expert System
@@ -32,7 +32,8 @@ AgroVeda is a premium, high-performance agricultural expert web application desi
 
 ### 🔐 Supabase Cloud Integration
 * **User Authentication**: Secure Sign Up and Sign In flows with configurable email confirmation settings.
-* **Persistent Settings**: User name, region, role, default soil type, and weather alert preferences are saved to the cloud.
+* **Persistent Settings**: User name, region, role, default soil type, and weather alert preferences are saved t
+o the cloud.
 * **AI Optimization**: Dynamically outputs personalized, localized agricultural advice based on the user's soil type and location.
 * **Chat Logs**: Automatically saves and restores conversation history for each authenticated user session.
 * **Cloud Storage**: Uploads uploaded crop images to a Supabase Storage bucket (`plant_images`) for persistent retrieval.

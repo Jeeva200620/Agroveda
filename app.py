@@ -167,6 +167,11 @@ def weather():
         return jsonify(data)
     return jsonify({"error": "Weather unavailable"}), 500
 
+@app.route('/ping')
+def ping():
+    """Health-check endpoint for uptime monitoring (e.g., UptimeRobot)."""
+    return jsonify({"status": "alive", "service": "AgroVeda"}), 200
+
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 7860))
     app.run(host="0.0.0.0", port=port, debug=True)
