@@ -10,6 +10,19 @@ pinned: true
 
 # 🌿 AgroVeda - AI-Powered Agricultural Expert System
 
+<div align="center">
+
+[![🚀 Live Demo](https://img.shields.io/badge/🤗%20Live%20Demo-Hugging%20Face-brightgreen?style=for-the-badge&logo=huggingface)](https://huggingface.co/spaces/jeevakm/agroveda)
+[![Python](https://img.shields.io/badge/Python-3.10-blue?style=for-the-badge&logo=python)](https://python.org)
+[![Flask](https://img.shields.io/badge/Flask-Backend-black?style=for-the-badge&logo=flask)](https://flask.palletsprojects.com)
+[![Groq](https://img.shields.io/badge/Groq-Llama%203.3%2070B-orange?style=for-the-badge)](https://groq.com)
+
+### 🌐 Try it Live: [https://huggingface.co/spaces/jeevakm/agroveda](https://huggingface.co/spaces/jeevakm/agroveda)
+
+</div>
+
+---
+
 AgroVeda is a premium, high-performance agricultural expert web application designed to empower farmers and agronomists with real-time AI crop consultation, clinical-grade plant disease detection, localized agricultural weather analytics, and cloud database persistence.
 
 ---
