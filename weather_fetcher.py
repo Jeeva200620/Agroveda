@@ -49,6 +49,7 @@ def get_weather_data(city=None, lat=None, lon=None):
             "description": curr_res["weather"][0]["description"],
             "humidity": curr_res["main"]["humidity"],
             "wind": curr_res["wind"]["speed"],
+            "wind_deg": curr_res["wind"].get("deg", 90),
             "forecast": [],
             "nearby": []
         }

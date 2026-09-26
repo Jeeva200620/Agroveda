@@ -9,6 +9,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- 3D Digital Twin Engine (Three.js WebGL) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="{{ url_for('static', filename='js/farm_twin_3d.js') }}"></script>
     
     <script id="tailwind-config">
         window.tailwind.config = {
@@ -158,21 +161,38 @@
             </div>
         </div>
 
-        <nav class="flex flex-col space-y-2 flex-grow">
+        <!-- New Consultation Button (ChatGPT/Claude Style) -->
+        <button id="new-chat-btn" class="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-primary text-on-primary font-bold shadow-md hover:bg-primary/95 transition-all active:scale-95 cursor-pointer text-sm font-headline">
+            <span class="material-symbols-outlined text-lg">add_circle</span>
+            <span id="new-chat-text">New Consultation</span>
+        </button>
+
+        <nav class="flex flex-col space-y-1.5 shrink-0">
             <!-- Nav Items -->
-            <button id="chat-nav" class="nav-btn w-full flex items-center gap-4 py-3 px-4 rounded-xl transition-all font-semibold group cursor-pointer">
+            <button id="chat-nav" class="nav-btn w-full flex items-center gap-4 py-2.5 px-4 rounded-xl transition-all font-semibold group cursor-pointer">
                 <span class="material-symbols-outlined" data-icon="chat">chat</span>
-                <span class="font-['Manrope'] tracking-tight">Chat</span>
+                <span class="font-['Manrope'] tracking-tight">Active Chat</span>
             </button>
-            <button id="weather-nav" class="nav-btn w-full flex items-center gap-4 py-3 px-4 rounded-xl transition-all font-semibold group cursor-pointer">
+            <button id="weather-nav" class="nav-btn w-full flex items-center gap-4 py-2.5 px-4 rounded-xl transition-all font-semibold group cursor-pointer">
                 <span class="material-symbols-outlined" data-icon="cloudy_snowing">cloudy_snowing</span>
                 <span class="font-['Manrope'] tracking-tight">Weather</span>
             </button>
-            <button id="settings-nav" class="nav-btn w-full flex items-center gap-4 py-3 px-4 rounded-xl transition-all font-semibold group cursor-pointer">
+            <button id="settings-nav" class="nav-btn w-full flex items-center gap-4 py-2.5 px-4 rounded-xl transition-all font-semibold group cursor-pointer">
                 <span class="material-symbols-outlined" data-icon="settings">settings</span>
                 <span class="font-['Manrope'] tracking-tight">Settings</span>
             </button>
         </nav>
+
+        <!-- Recent Consultations History (ChatGPT / Claude Style) -->
+        <div class="flex flex-col space-y-1.5 flex-grow overflow-hidden">
+            <div class="flex items-center justify-between text-[11px] font-bold uppercase tracking-wider text-on-surface-variant/70 px-2 py-1 font-label border-t border-outline-variant/10 pt-3">
+                <span id="history-header-text">Recent Consultations</span>
+                <span class="material-symbols-outlined text-sm">history</span>
+            </div>
+            <div id="chat-sessions-list" class="flex flex-col space-y-1 overflow-y-auto custom-scrollbar flex-grow pr-1">
+                <!-- Injected dynamically by JS -->
+            </div>
+        </div>
 
         <div class="mt-auto pt-6 border-t border-outline-variant/10">
             <div class="space-y-2 mb-4">

@@ -14,6 +14,10 @@ __pycache__/
 # User uploads & temp files
 plant_images/
 static/uploaded_images/
+static/renders/*
+!static/renders/.gitkeep
+blender/renders/*
+!blender/renders/.gitkeep
 
 # Editors and IDEs
 .vscode/

@@ -45,6 +45,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const profileSettingsBtn = document.getElementById('profile-settings-btn');
     const weatherWidget = document.getElementById('weather-widget');
 
+    // Sidebar Session Management (ChatGPT / Claude Style)
+    const newChatBtn = document.getElementById('new-chat-btn');
+    const chatSessionsList = document.getElementById('chat-sessions-list');
+
     // Display elements inside card
     const profileCardName = document.getElementById('profile-card-name');
     const profileCardRole = document.getElementById('profile-card-role');
@@ -626,7 +630,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 50);
     }
 
-    function appendMessage(content, isUser = false, imageUrl = null) {
+    function appendMessage(content, isUser = false, imageUrl = null, shouldSave = true) {
         const msgDiv = document.createElement('div');
         msgDiv.className = `flex items-start gap-4 ${isUser ? 'self-end flex-row-reverse' : 'self-start'} max-w-[85%] mb-6`;
 
@@ -658,6 +662,10 @@ document.addEventListener('DOMContentLoaded', () => {
         msgDiv.innerHTML = avatarHtml;
         msgDiv.appendChild(innerContentDiv);
         chatHistory.appendChild(msgDiv);
+
+        if (shouldSave) {
+            saveMessageToActiveSession(content, isUser, imageUrl);
+        }
         
         scrollToBottom();
     }
@@ -839,6 +847,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (data.weather) {
                     // Update widget if response included fresh weather
                     updateWeatherWidget(data.weather.city);
+                }
+
+                // Auto-trigger 3D Digital Twin Simulation if a crop disease is detected
+                if (data.detected_crop && !data.detected_crop.toLowerCase().includes('healthy')) {
+                    triggerDigitalTwinSimulation(data.detected_crop, data.weather, data.confidence);
                 }
 
                 // Write AI Response to Supabase
@@ -1353,12 +1366,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 handleLoginSuccess(session.user);
             } else {
                 if (authOverlay) authOverlay.classList.remove('hidden');
-                renderWelcomeMessage();
             }
+            initChatSessions();
         });
     } else {
         if (authOverlay) authOverlay.classList.add('hidden');
-        renderWelcomeMessage();
+        initChatSessions();
     }
 
     // Focus input on load
@@ -1406,8 +1419,144 @@ document.addEventListener('DOMContentLoaded', () => {
     if (sidebarCloseBtn) {
         sidebarCloseBtn.addEventListener('click', closeSidebar);
     }
-    if (sidebarBackdrop) {
-        sidebarBackdrop.addEventListener('click', closeSidebar);
+    if (newChatBtn) {
+        newChatBtn.addEventListener('click', createNewSession);
+    }
+
+    // --- CHAT SESSIONS & HISTORY STORE (ChatGPT/Claude Style) ---
+    let chatSessions = JSON.parse(localStorage.getItem('agroveda_chat_sessions') || '[]');
+    let currentSessionId = localStorage.getItem('agroveda_active_session_id') || null;
+
+    function initChatSessions() {
+        if (chatSessions.length === 0) {
+            createNewSession();
+        } else {
+            const active = chatSessions.find(s => s.id === currentSessionId) || chatSessions[0];
+            switchSession(active.id);
+        }
+        renderSessionsList();
+    }
+
+    function renderSessionsList() {
+        if (!chatSessionsList) return;
+        chatSessionsList.innerHTML = '';
+
+        if (chatSessions.length === 0) {
+            chatSessionsList.innerHTML = `<span class="text-[11px] text-on-surface-variant/50 italic px-2 py-1">No previous chats</span>`;
+            return;
+        }
+
+        chatSessions.forEach(session => {
+            const isActive = session.id === currentSessionId;
+            const item = document.createElement('div');
+            item.className = `session-item flex items-center justify-between py-2 px-2.5 rounded-xl text-xs cursor-pointer transition-all ${
+                isActive 
+                    ? 'bg-primary/15 text-primary dark:text-[#c3e2c9] font-bold border border-primary/20 shadow-sm' 
+                    : 'hover:bg-surface-container-high/70 text-on-surface-variant'
+            }`;
+
+            const titleWrap = document.createElement('div');
+            titleWrap.className = 'flex items-center gap-2 overflow-hidden flex-grow mr-1';
+            titleWrap.innerHTML = `
+                <span class="material-symbols-outlined text-sm shrink-0 opacity-70">chat_bubble</span>
+                <span class="truncate">${session.title || 'New Consultation'}</span>
+            `;
+            titleWrap.onclick = () => switchSession(session.id);
+
+            const delBtn = document.createElement('button');
+            delBtn.className = 'opacity-40 hover:opacity-100 hover:text-error transition-opacity p-0.5 rounded cursor-pointer shrink-0';
+            delBtn.innerHTML = `<span class="material-symbols-outlined text-sm">delete</span>`;
+            delBtn.title = 'Delete consultation';
+            delBtn.onclick = (e) => {
+                e.stopPropagation();
+                deleteSession(session.id);
+            };
+
+            item.appendChild(titleWrap);
+            item.appendChild(delBtn);
+            chatSessionsList.appendChild(item);
+        });
+    }
+
+    function createNewSession() {
+        const newId = 'session_' + Date.now();
+        const newSession = {
+            id: newId,
+            title: 'New Consultation',
+            timestamp: Date.now(),
+            messages: []
+        };
+        chatSessions.unshift(newSession);
+        currentSessionId = newId;
+        saveSessions();
+        renderSessionsList();
+
+        if (chatHistory) {
+            chatHistory.innerHTML = '';
+            renderWelcomeMessage();
+        }
+        if (input) input.focus();
+    }
+
+    function switchSession(sessionId) {
+        const session = chatSessions.find(s => s.id === sessionId);
+        if (!session) return;
+
+        currentSessionId = sessionId;
+        localStorage.setItem('agroveda_active_session_id', currentSessionId);
+        renderSessionsList();
+
+        if (chatHistory) {
+            chatHistory.innerHTML = '';
+            if (session.messages.length === 0) {
+                renderWelcomeMessage();
+            } else {
+                session.messages.forEach(m => {
+                    appendMessage(m.content, m.isUser, m.imageUrl, false);
+                });
+                scrollToBottom();
+            }
+        }
+    }
+
+    function deleteSession(sessionId) {
+        chatSessions = chatSessions.filter(s => s.id !== sessionId);
+        if (currentSessionId === sessionId) {
+            currentSessionId = chatSessions.length > 0 ? chatSessions[0].id : null;
+        }
+        saveSessions();
+        renderSessionsList();
+        if (currentSessionId) {
+            switchSession(currentSessionId);
+        } else {
+            createNewSession();
+        }
+    }
+
+    function saveMessageToActiveSession(content, isUser, imageUrl) {
+        let session = chatSessions.find(s => s.id === currentSessionId);
+        if (!session) {
+            createNewSession();
+            session = chatSessions.find(s => s.id === currentSessionId);
+        }
+        if (!session) return;
+
+        session.messages.push({ content, isUser, imageUrl });
+
+        // Auto-generate title on first user query
+        if (session.title === 'New Consultation' && isUser && content) {
+            // Strip tags
+            const plain = content.replace(/<[^>]*>/g, '').trim();
+            session.title = plain.length > 25 ? plain.substring(0, 25) + '...' : plain;
+        }
+
+        saveSessions();
+        renderSessionsList();
+    }
+
+    function saveSessions() {
+        localStorage.setItem('agroveda_chat_sessions', JSON.stringify(chatSessions));
+        localStorage.setItem('agroveda_active_session_id', currentSessionId);
     }
 
     // Also close sidebar on navigation item clicks (on mobile devices)
@@ -1418,4 +1567,253 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     });
+
+    // --- 3D FIELD DIGITAL TWIN & SIMULATION ORCHESTRATION ---
+    async function triggerDigitalTwinSimulation(diseaseName, weather, confidence) {
+        try {
+            const windSpeed = (weather && weather.wind) ? weather.wind : 12.0;
+            const windDeg = (weather && weather.wind_deg) ? weather.wind_deg : 90.0;
+            const humidity = (weather && weather.humidity) ? weather.humidity : 75.0;
+            const temp = (weather && weather.temp) ? weather.temp : 26.0;
+
+            const res = await fetch('/api/visualize-disease', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    disease_name: diseaseName,
+                    wind_speed: windSpeed,
+                    wind_deg: windDeg,
+                    humidity: humidity,
+                    temp: temp,
+                    confidence: confidence
+                })
+            });
+
+            const data = await res.json();
+            if (!data.job_id) return;
+
+            const jobId = data.job_id;
+            const formattedDisease = diseaseName.replace(/___|__|_/g, ' ');
+
+            // Construct 3D Digital Twin Card HTML
+            const cardHtml = `
+            <div id="twin-card-${jobId}" class="w-full bg-[#f0f4f1] dark:bg-[#15271c] p-4 md:p-6 rounded-2xl border border-primary/20 shadow-md space-y-4 my-2 text-on-surface">
+                <!-- Header -->
+                <div class="flex items-center justify-between border-b border-outline-variant/20 pb-3">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
+                            <span class="material-symbols-outlined text-2xl">view_in_ar</span>
+                        </div>
+                        <div>
+                            <h4 class="font-headline font-bold text-sm md:text-base text-primary dark:text-[#c3e2c9] leading-tight">3D Field Digital Twin & Spreading Simulation</h4>
+                            <p class="text-[11px] text-on-surface-variant font-medium mt-0.5">
+                                <span class="font-semibold text-primary dark:text-[#c3e2c9]">${formattedDisease}</span> • 
+                                <span>${data.tamil_label || ''}</span> • 
+                                <span>Wind: ${windSpeed} km/h @ ${windDeg}°</span>
+                            </p>
+                        </div>
+                    </div>
+                    <span class="bg-primary-container text-on-primary-container text-[11px] font-bold px-3 py-1 rounded-full uppercase tracking-wider hidden sm:inline">WebGL Twin</span>
+                </div>
+
+                <!-- Three.js 3D Canvas -->
+                <div id="canvas-wrap-${jobId}" class="w-full h-72 md:h-80 rounded-xl overflow-hidden relative shadow-inner border border-outline-variant/20 bg-[#0f1712]">
+                    <div class="absolute top-3 left-3 z-10 bg-black/75 backdrop-blur-md px-3 py-1.5 rounded-lg text-xs text-white font-medium flex items-center gap-2 border border-white/10 pointer-events-none">
+                        <span class="material-symbols-outlined text-sm text-primary">sensors</span>
+                        <span id="day-counter-${jobId}">Simulation: Day 1 / 30</span>
+                        <span class="text-white/40">|</span>
+                        <span class="text-[10px] text-white/70">Click & Drag to Orbit 3D</span>
+                    </div>
+                </div>
+
+                <!-- 30-Day Timeline Slider -->
+                <div class="space-y-1.5 bg-surface-container-high/60 dark:bg-black/20 p-3 rounded-xl">
+                    <div class="flex justify-between items-center text-xs">
+                        <span class="font-semibold text-on-surface-variant flex items-center gap-1.5">
+                            <span class="material-symbols-outlined text-sm text-primary">history</span>
+                            Timeline Scrubber (Days 1–30)
+                        </span>
+                        <span id="affected-count-${jobId}" class="font-bold text-error">
+                            1 / 100 Crops Affected (1%)
+                        </span>
+                    </div>
+                    <input type="range" id="slider-${jobId}" min="1" max="30" value="1" class="w-full accent-primary cursor-pointer h-2 bg-surface-container-highest rounded-lg appearance-none">
+                    <div class="flex justify-between text-[10px] text-on-surface-variant/60 font-mono px-1">
+                        <span>Day 1 (Patient Zero)</span>
+                        <span>Day 15</span>
+                        <span>Day 30 (Field Spread)</span>
+                    </div>
+                </div>
+
+                <!-- HD Blender Render & Deep Science Section -->
+                <div id="hd-section-${jobId}" class="p-3 bg-white dark:bg-[#0a120e] rounded-xl border border-outline-variant/15 flex flex-col md:flex-row md:items-center justify-between gap-3 text-xs">
+                    <div class="flex items-center gap-2.5">
+                        <span id="hd-icon-${jobId}" class="material-symbols-outlined text-primary text-xl animate-spin">sync</span>
+                        <div>
+                            <span id="hd-title-${jobId}" class="font-bold text-primary dark:text-[#c3e2c9] block">Rendering Blender Cinematic 3D Simulation...</span>
+                            <span id="hd-subtitle-${jobId}" class="text-[10px] text-on-surface-variant">Ray-traced lighting, weather dynamics & Tamil annotation</span>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button id="soil-btn-${jobId}" class="px-3 py-1.5 rounded-lg bg-surface-container-high hover:bg-surface-container-highest text-primary dark:text-[#c3e2c9] font-bold text-[11px] transition-all flex items-center gap-1 cursor-pointer">
+                            <span class="material-symbols-outlined text-sm">layers</span> Soil Strata
+                        </button>
+                        <button id="treatment-btn-${jobId}" class="px-3 py-1.5 rounded-lg bg-surface-container-high hover:bg-surface-container-highest text-primary dark:text-[#c3e2c9] font-bold text-[11px] transition-all flex items-center gap-1 cursor-pointer">
+                            <span class="material-symbols-outlined text-sm">shield</span> Spray Zone
+                        </button>
+                        <a id="hd-media-link-${jobId}" href="#" target="_blank" class="hidden px-3 py-1.5 rounded-lg bg-primary text-on-primary font-bold text-[11px] transition-all flex items-center gap-1 shadow-sm">
+                            <span class="material-symbols-outlined text-sm">open_in_new</span> View HD Render
+                        </a>
+                    </div>
+                </div>
+
+                <!-- HD Preview Container (when ready) -->
+                <div id="hd-preview-${jobId}" class="hidden w-full overflow-hidden rounded-xl border border-outline-variant/20 shadow-md">
+                    <img id="hd-media-img-${jobId}" src="" alt="Blender 3D Simulation" class="w-full object-cover rounded-xl">
+                </div>
+            </div>
+            `;
+
+            // Append to chat stream
+            appendMessage(cardHtml, false);
+            scrollToBottom();
+
+            // Mount Three.js farm twin
+            setTimeout(() => {
+                if (window.FarmTwin3D) {
+                    const twin = new FarmTwin3D(`canvas-wrap-${jobId}`);
+                    twin.loadSimulation(data.timeline, diseaseName, data.stats);
+
+                    const slider = document.getElementById(`slider-${jobId}`);
+                    if (slider) {
+                        slider.addEventListener('input', (e) => {
+                            const day = parseInt(e.target.value, 10);
+                            twin.updateDay(day);
+                            const dayCounter = document.getElementById(`day-counter-${jobId}`);
+                            if (dayCounter) dayCounter.textContent = `Simulation: Day ${day} / 30`;
+
+                            let count = 0;
+                            for (const d of Object.values(data.timeline || {})) {
+                                if (d <= day) count++;
+                            }
+                            const affEl = document.getElementById(`affected-count-${jobId}`);
+                            if (affEl) affEl.textContent = `${count} / 100 Crops Affected (${count}%)`;
+                        });
+                    }
+                }
+
+                // Attach Soil & Treatment button handlers (Dynamically linked to detected disease & profile)
+                const soilBtn = document.getElementById(`soil-btn-${jobId}`);
+                if (soilBtn) {
+                    soilBtn.addEventListener('click', async () => {
+                        soilBtn.disabled = true;
+                        soilBtn.innerHTML = `<span class="material-symbols-outlined text-sm animate-spin">sync</span> Loading...`;
+                        try {
+                            const soilEl = document.getElementById('profile-card-soil');
+                            const activeSoil = soilEl ? soilEl.textContent.trim() : 'Alluvial Soil';
+                            const sres = await fetch('/api/visualize-soil', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ soil_type: activeSoil, moisture_level: humidity })
+                            });
+                            const sdata = await sres.json();
+                            if (sdata.media_url) {
+                                appendMessage(`<div class="space-y-2 my-2"><p class="font-bold text-xs text-primary dark:text-[#c3e2c9] flex items-center gap-1.5"><span class="material-symbols-outlined text-base">layers</span> 3D Soil Strata & Root Penetration Visualizer (${activeSoil}):</p><img src="${sdata.media_url}" class="rounded-xl shadow-md border border-outline-variant/20 max-w-md w-full"></div>`, false);
+                                scrollToBottom();
+                            }
+                        } finally {
+                            soilBtn.disabled = false;
+                            soilBtn.innerHTML = `<span class="material-symbols-outlined text-sm">layers</span> Soil Strata`;
+                        }
+                    });
+                }
+
+                const treatBtn = document.getElementById(`treatment-btn-${jobId}`);
+                if (treatBtn) {
+                    treatBtn.addEventListener('click', async () => {
+                        treatBtn.disabled = true;
+                        treatBtn.innerHTML = `<span class="material-symbols-outlined text-sm animate-spin">sync</span> Loading...`;
+                        try {
+                            // Extract actual patient zero & neighbor infected coordinates from SEIR timeline
+                            const realInfectedNodes = Object.entries(data.timeline || {})
+                                .filter(([k, d]) => d <= 3)
+                                .map(([k]) => {
+                                    const parts = k.split('_');
+                                    return [parseInt(parts[1], 10), parseInt(parts[2], 10)];
+                                })
+                                .slice(0, 5);
+
+                            const nodesToPass = realInfectedNodes.length > 0 ? realInfectedNodes : [[5, 5]];
+
+                            const tres = await fetch('/api/visualize-treatment', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({
+                                    infected_nodes: nodesToPass,
+                                    treatment_type: 'Trichoderma Viride Bio-Fungicide (2m Buffer)'
+                                })
+                            });
+                            const tdata = await tres.json();
+                            if (tdata.media_url) {
+                                appendMessage(`<div class="space-y-2 my-2"><p class="font-bold text-xs text-primary dark:text-[#c3e2c9] flex items-center gap-1.5"><span class="material-symbols-outlined text-base">shield</span> 3D Spray Barrier & Buffer Containment Zone (2m around Patient Zero):</p><img src="${tdata.media_url}" class="rounded-xl shadow-md border border-outline-variant/20 max-w-md w-full"></div>`, false);
+                                scrollToBottom();
+                            }
+                        } finally {
+                            treatBtn.disabled = false;
+                            treatBtn.innerHTML = `<span class="material-symbols-outlined text-sm">shield</span> Spray Zone`;
+                        }
+                    });
+                }
+
+                // Poll for background Blender render completion
+                let pollAttempts = 0;
+                const pollInterval = setInterval(async () => {
+                    pollAttempts++;
+                    if (pollAttempts > 35) {
+                        clearInterval(pollInterval);
+                        return;
+                    }
+                    try {
+                        const sRes = await fetch(`/api/simulation-status/${jobId}`);
+                        if (sRes.ok) {
+                            const sData = await sRes.json();
+                            if (sData.status === 'completed' && sData.media_url) {
+                                clearInterval(pollInterval);
+                                const iconEl = document.getElementById(`hd-icon-${jobId}`);
+                                const titleEl = document.getElementById(`hd-title-${jobId}`);
+                                const subEl = document.getElementById(`hd-subtitle-${jobId}`);
+                                const linkEl = document.getElementById(`hd-media-link-${jobId}`);
+                                const previewEl = document.getElementById(`hd-preview-${jobId}`);
+                                const imgEl = document.getElementById(`hd-media-img-${jobId}`);
+
+                                if (iconEl) {
+                                    iconEl.classList.remove('animate-spin');
+                                    iconEl.textContent = 'check_circle';
+                                    iconEl.classList.add('text-primary');
+                                }
+                                if (titleEl) titleEl.textContent = 'Blender 3D Simulation Ready';
+                                if (subEl) subEl.textContent = 'High-resolution animated progression generated';
+                                if (linkEl) {
+                                    linkEl.href = sData.media_url;
+                                    linkEl.classList.remove('hidden');
+                                }
+                                if (previewEl && imgEl) {
+                                    imgEl.src = sData.media_url;
+                                    previewEl.classList.remove('hidden');
+                                }
+                            } else if (sData.status === 'failed') {
+                                clearInterval(pollInterval);
+                            }
+                        }
+                    } catch (e) {
+                        console.error("Poll error:", e);
+                    }
+                }, 2000);
+
+            }, 100);
+
+        } catch (err) {
+            console.error("Digital Twin trigger failed:", err);
+        }
+    }
 });
